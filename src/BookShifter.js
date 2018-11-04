@@ -1,32 +1,31 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from "prop-types";
 
-class BookShifter extends Component {
-    static propTypes = {
-        book: PropTypes.object.isRequired,
-        changeShelf: PropTypes.func.isRequired
-    }
+function BookShifter(props) {
 
-    shelfShift = (event) => {
-        this.props.changeShelf(this.props.book, event.target.value);
-    }
+    const shelfShift = (event) => {
+        props.changeShelf(props.book, event.target.value);
+    };
 
-    render() {
-        return(
-            <div className="book-shelf-changer">
-              <select
-                value={this.props.book.shelf}
-                onChange= {this.shelfShift}
-              >
-                <option value="move" disabled>Move to...</option>
-                <option value="currentlyReading">Currently Reading</option>
-                <option value="wantToRead">Want to Read</option>
-                <option value="read">Read</option>
-                <option value="none">None</option>
-              </select>
-            </div>
-        )
-    }
+    return (
+        <div className="book-shelf-changer">
+          <select
+            defaultValue={props.book.shelf}
+            onChange= {shelfShift}
+          >
+            <option value="move" disabled>Move to...</option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+    )
 }
+
+BookShifter.propTypes = {
+    book: PropTypes.object.isRequired,
+    changeShelf: PropTypes.func.isRequired
+    }
 
 export default BookShifter

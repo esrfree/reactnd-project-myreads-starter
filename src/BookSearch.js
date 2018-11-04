@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import DebounceInput from 'react-debounce-input';
 import * as BooksAPI from './BooksAPI';
 import BooksInfo from './BooksInfo';
 
@@ -21,9 +22,21 @@ class BookSearch extends Component {
     }
 
     searchBooks = (query) => {
-        if(query.length !== 0) {
-            BooksAPI.search(query, 20).then(books => {
-                this.setState({ books })
+        let results = []
+        if(query) {
+            BooksAPI.search(query, 20).then(resp => {
+                if (resp.length > 0) {
+                    results = resp.map(r => {
+                        const index = this.props.books.findIndex(b => b.id === r.id)
+                        if (index >= 0) {
+                            return this.props.books[index]
+                        } else {
+                            r.shelf = 'none'
+                            return r
+                        }
+                    })
+                }
+                this.setState({ books:results })
             })
         } else {
             this.setState({books: []})
@@ -31,6 +44,7 @@ class BookSearch extends Component {
     }
 
     render() {
+        console.log(this.state.books)
         const {query , books} = this.state;
 
         return(
@@ -42,10 +56,11 @@ class BookSearch extends Component {
                     Close
                 </Link>
                 <div className="search-books-input-wrapper">
-                  <input
+                  <DebounceInput
                       type="text"
                       placeholder="Search by title or author"
                       value={query}
+                      debounceTimeout={1000}
                       onChange={(event) => this.updateQuery(event.target.value)}
                   />
                 </div>
@@ -64,8 +79,8 @@ class BookSearch extends Component {
                          ))}
                      </ol>
                 )}
-                {books.error && (
-                    <span>Search did not return any books. Please try again!</span>
+                {books.length === 0 && (
+                    <span>Please enter a new search criteria!</span>
                 )}
                 </div>
               </div>
